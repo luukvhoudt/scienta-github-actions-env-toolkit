@@ -1,0 +1,21 @@
+{
+	"name": "github-actions-env-toolkit",
+	"version": "0.0.3",
+	"description": "Scienta's Github Actions environment variables Toolkit",
+	"main": "index.js",
+	"scripts": {
+		"build": "ncc build index.js -o dist"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ScientaNL/github-actions-env-toolkit.git"
+	},
+	"author": "Scienta",
+	"license": "MIT",
+	"dependencies": {
+		"@actions/core": "^1.2.6"
+	},
+	"devDependencies": {
+		"@vercel/ncc": "^0.25.1"
+	}
+}
