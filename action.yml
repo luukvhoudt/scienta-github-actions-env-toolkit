@@ -2,6 +2,6 @@ name: 'Github Actions environment variables toolkit Action'
 description: 'Format and expose environment variables useful for our Github Actions'
 author: 'Scienta'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
   
