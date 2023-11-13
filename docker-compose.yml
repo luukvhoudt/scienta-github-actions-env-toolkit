@@ -2,7 +2,7 @@ version: "3.8"
 services:
   node:
     container_name: github-actions-env-toolkit-builder
-    image: "node:10"
+    image: "node:20"
     user: "node"
     working_dir: /home/node/app
     environment:

@@ -26,9 +26,11 @@ try {
     };
 
     for (const [variableName, item] of Object.entries(variables)) {
-        const value = item.transform(
-            item.input(process.env)
-        );
+        core.debug(`Processing variable ${variableName}`)
+        const input = item.input(process.env);
+        core.debug(`Input: ${input}`);
+        const value = item.transform(input);
+        core.debug(`Transformed: ${value}`)
 
         if (value) {
             core.exportVariable(variableName, value);
@@ -38,5 +40,5 @@ try {
         }
     }
 } catch (error) {
-    core.setFailed(error.message);
+    core.setFailed(error);
 }
