@@ -1,4 +1,5 @@
 const core = require('@actions/core');
+const github = require('@actions/github');
 
 function getRefName(ref) {
     return ref ? ref.split('/').slice(2).join('/') : null;
@@ -7,11 +8,11 @@ function getRefName(ref) {
 try {
     const variables = {
         GITHUB_REF_NAME: {
-            input: (env) => env.GITHUB_REF,
+            input: github.event.release.tag_name,
             transform: (ref) => getRefName(ref)
         },
         GITHUB_REF_NAME_SLUG: {
-            input: (env) => env.GITHUB_REF,
+            input: github.event.release.tag_name,
             transform: (ref) => getRefName(ref)
                 .toLowerCase()
                 .replace(/[^a-z0-9 -.]/g, ' ') // remove invalid chars. Allow a dot
@@ -20,14 +21,14 @@ try {
                 .replace(/-+/g, '-') // collapse dashes
         },
         GITHUB_SHA_SHORT: {
-            input: (env) => env.GITHUB_SHA,
+            input: process.env.GITHUB_SHA,
             transform: (sha) => sha ? sha.substring(0, 8) : null
         }
     };
 
     for (const [variableName, item] of Object.entries(variables)) {
         core.debug(`Processing variable ${variableName}`)
-        const input = item.input(process.env);
+        const input = item.input;
         core.debug(`Input: ${input}`);
         const value = item.transform(input);
         core.debug(`Transformed: ${value}`)
