@@ -1,45 +1,44 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
-function getRefName(ref) {
-    return ref ? ref.split('/').slice(2).join('/') : null;
+function getRefName() {
+	const ref = process.env.GITHUB_REF ?? github.event.release.tag_name ?? null;
+	if (typeof ref !== 'string') {
+		throw new Error('Branch/tag REF is missing');
+	}
+
+	return ref.split('/')
+		.slice(2)
+		.join('/') ?? null;
+}
+
+function getRefNameSlug() {
+	return getRefName()
+		.toLowerCase()
+		.replace(/[^a-z0-9 -.]/g, ' ') // remove invalid chars. Allow a dot
+		.replace(/^\s+|\s+$/g, '') // trim
+		.replace(/\s+/g, '-') // collapse whitespace and replace by -
+		.replace(/-+/g, '-'); // collapse dashes
+}
+
+function getShaShort() {
+	const sha = github.context.sha;
+	if (typeof sha !== 'string') {
+		throw new Error('Commit SHA is missing');
+	}
+
+	return sha.substring(0, 8) ?? null;
+}
+
+function setVarName(name, value) {
+	core.exportVariable(name, value);
+	core.info(`Set ${name}=${value}`);
 }
 
 try {
-    const variables = {
-        GITHUB_REF_NAME: {
-            input: github.event.release.tag_name,
-            transform: (ref) => getRefName(ref)
-        },
-        GITHUB_REF_NAME_SLUG: {
-            input: github.event.release.tag_name,
-            transform: (ref) => getRefName(ref)
-                .toLowerCase()
-                .replace(/[^a-z0-9 -.]/g, ' ') // remove invalid chars. Allow a dot
-                .replace(/^\s+|\s+$/g, '') // trim
-                .replace(/\s+/g, '-') // collapse whitespace and replace by -
-                .replace(/-+/g, '-') // collapse dashes
-        },
-        GITHUB_SHA_SHORT: {
-            input: process.env.GITHUB_SHA,
-            transform: (sha) => sha ? sha.substring(0, 8) : null
-        }
-    };
-
-    for (const [variableName, item] of Object.entries(variables)) {
-        core.debug(`Processing variable ${variableName}`)
-        const input = item.input;
-        core.debug(`Input: ${input}`);
-        const value = item.transform(input);
-        core.debug(`Transformed: ${value}`)
-
-        if (value) {
-            core.exportVariable(variableName, value);
-            core.info(`Set ${variableName}=${value}`);
-        } else {
-            core.warning(`Could not set environment variable ${variableName}.`);
-        }
-    }
+	setVarName('GITHUB_REF_NAME', getRefName());
+	setVarName('GITHUB_REF_NAME_SLUG', getRefNameSlug());
+	setVarName('GITHUB_SHA_SHORT', getShaShort);
 } catch (error) {
-    core.setFailed(error);
+	core.setFailed(error);
 }

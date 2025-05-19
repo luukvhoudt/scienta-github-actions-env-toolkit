@@ -1,0 +1,10 @@
+on: [ push ]
+
+jobs:
+  test_gha:
+    runs-on: ubuntu-latest
+    name: Test the Github Actions
+    steps:
+      - uses: actions/checkout@v4
+      - name: env-toolkit
+        uses: ./
